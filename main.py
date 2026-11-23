@@ -178,13 +178,9 @@ def update_graph(selected_nights):
 # ---------------------------------------------------------
 # 6. VERCEL WSGI ENTRY POINT
 # ---------------------------------------------------------
-
+# Vercel WSGI entry point
 app = dash_app.server
 
-
-# ---------------------------------------------------------
-# 7. LOCAL EXECUTION
-# ---------------------------------------------------------
-
-if __name__ == '__main__':
+# Local execution only
+if __name__ == "__main__":
     dash_app.run(debug=True)
