@@ -203,3 +203,6 @@ def update_graph(selected_nights):
 if __name__ == '__main__':
 
     app.run(debug=True)
+
+    # Expose Flask server for Vercel
+server = app.server
