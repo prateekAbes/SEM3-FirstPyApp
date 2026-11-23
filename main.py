@@ -33,12 +33,9 @@ missing = [c for c in required_columns if c not in df.columns]
 if missing:
     raise ValueError(f"Missing columns in dataset: {missing}")
 
-# Convert columns to numeric
-
 for col in required_columns:
 
     if col == 'price':
-
         df[col] = pd.to_numeric(
             df[col].astype(str).str.replace(
                 r'[^\d.]', '', regex=True
@@ -47,17 +44,14 @@ for col in required_columns:
         )
 
     else:
-
         df[col] = pd.to_numeric(
             df[col],
             errors='coerce'
         )
 
-
 # Remove missing values
 
 df = df.dropna(subset=required_columns)
-
 
 # Remove invalid geographic coordinates
 
@@ -77,14 +71,14 @@ if df.empty:
 # 3. CREATE DASH APPLICATION
 # ---------------------------------------------------------
 
-app = Dash(__name__)
+dash_app = Dash(__name__)
 
 
 # ---------------------------------------------------------
 # 4. APP LAYOUT
 # ---------------------------------------------------------
 
-app.layout = html.Div([
+dash_app.layout = html.Div([
 
     html.H1(
         "Airbnb Listings - Monterrey",
@@ -94,9 +88,7 @@ app.layout = html.Div([
         }
     ),
 
-    html.H3(
-        "Filter by Minimum Nights"
-    ),
+    html.H3("Filter by Minimum Nights"),
 
     dcc.Slider(
         id='night-slider',
@@ -129,9 +121,7 @@ app.layout = html.Div([
 
     dcc.Graph(
         id='airbnb-app',
-        style={
-            'height': '700px'
-        }
+        style={'height': '700px'}
     )
 
 ])
@@ -141,27 +131,20 @@ app.layout = html.Div([
 # 5. CALLBACK FUNCTION
 # ---------------------------------------------------------
 
-@app.callback(
+@dash_app.callback(
     [
         Output('airbnb-app', 'figure'),
         Output('count', 'children')
     ],
     Input('night-slider', 'value')
 )
-
 def update_graph(selected_nights):
-
-    # Filter dataset
 
     filtered_df = df[
         df['minimum_nights'] <= selected_nights
     ]
 
-    # Calculate total listings
-
     count = len(filtered_df)
-
-    # Create interactive map
 
     fig = px.scatter_map(
         filtered_df,
@@ -180,8 +163,6 @@ def update_graph(selected_nights):
         map_style='open-street-map'
     )
 
-    # Update map layout
-
     fig.update_layout(
         margin={
             'r': 0,
@@ -191,18 +172,19 @@ def update_graph(selected_nights):
         }
     )
 
-    # Return BOTH callback outputs
-
     return fig, f"Total Listings: {count}"
 
 
 # ---------------------------------------------------------
-# 6. RUN SERVER
+# 6. VERCEL WSGI ENTRY POINT
+# ---------------------------------------------------------
+
+app = dash_app.server
+
+
+# ---------------------------------------------------------
+# 7. LOCAL EXECUTION
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
-
-    app.run(debug=True)
-
-    # Expose Flask server for Vercel
-server = app.server
+    dash_app.run(debug=True)
